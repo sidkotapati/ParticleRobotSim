@@ -55,7 +55,7 @@ particles = []
 center_pos = (0, 0)
 center_body = pymunk.Body()
 center_shape = pymunk.Circle(center_body, radius)
-center_shape.mass = 100
+center_shape.mass = 1.0
 center_shape.friction = 1000
 center_shape.elasticity = 0.9
 center_shape.color = (128, 128, 128, 255)
@@ -150,15 +150,15 @@ for step in range(time_steps):
             if distance < 0.100001: # Interaction radius
                 # Calculate orbital force
                 tangent = np.array([dx[1], -dx[0]]) / distance
-                orbital_strength = 0.03
+                orbital_strength = 0.3
                 
                 # Apply tangential forces to create orbital motion
                 force = tangent * orbital_strength
-                #body1.apply_force_at_local_point(tuple(-force), (0, 0))
+                body1.apply_force_at_local_point(tuple(-force), (0, 0))
                 body2.apply_force_at_local_point(tuple(force), (0, 0))
                 
                 # Add attractive force to keep particles from drifting apart
-                attract_strength = 0.3
+                attract_strength = 0.5
                 force_dir = dx / distance
                 attract_force = force_dir * attract_strength
                 body1.apply_force_at_local_point(tuple(attract_force), (0, 0))
@@ -166,7 +166,7 @@ for step in range(time_steps):
     
         # Add damping
         vel = np.array(body1.velocity)
-        #body1.velocity = tuple(vel * 0.90)
+        body1.velocity = tuple(vel * 0.90)
     
     space.step(dt)
     time += dt
