@@ -48,14 +48,14 @@ for i in range(num_segments):
 
 # Create particles
 # Create particles in contact with each other
-num_particles = 15
+num_particles = 25
 particles = []
 
 # Start with a center particle
 center_pos = (0, 0)
 center_body = pymunk.Body()
 center_shape = pymunk.Circle(center_body, radius)
-center_shape.mass = 1.0
+center_shape.mass = 1000000.0
 center_shape.friction = 1000
 center_shape.elasticity = 0.9
 center_shape.color = (128, 128, 128, 255)
@@ -73,7 +73,7 @@ for i in range(min(6, num_particles-1)):  # Up to 6 in first ring
     
     body = pymunk.Body()
     shape = pymunk.Circle(body, radius)
-    shape.mass = 1.0
+    shape.mass = 100000
     shape.friction = 0.7
     shape.elasticity = 0.9
     shape.color = (128, 128, 128, 255)
@@ -150,15 +150,16 @@ for step in range(time_steps):
             if distance < 0.100001: # Interaction radius
                 # Calculate orbital force
                 tangent = np.array([dx[1], -dx[0]]) / distance
-                orbital_strength = 0.3
+                orbital_strength = 1
                 
                 # Apply tangential forces to create orbital motion
                 force = tangent * orbital_strength
+                print(force)
                 body1.apply_force_at_local_point(tuple(-force), (0, 0))
                 body2.apply_force_at_local_point(tuple(force), (0, 0))
                 
                 # Add attractive force to keep particles from drifting apart
-                attract_strength = 0.5
+                attract_strength = 2.0
                 force_dir = dx / distance
                 attract_force = force_dir * attract_strength
                 body1.apply_force_at_local_point(tuple(attract_force), (0, 0))
