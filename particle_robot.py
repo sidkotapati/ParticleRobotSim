@@ -55,8 +55,8 @@ particles = []
 center_pos = (0, 0)
 center_body = pymunk.Body()
 center_shape = pymunk.Circle(center_body, radius)
-center_shape.mass = 1.0
-center_shape.friction = 0.7
+center_shape.mass = 100
+center_shape.friction = 1000
 center_shape.elasticity = 0.9
 center_shape.color = (128, 128, 128, 255)
 center_body.position = center_pos
@@ -147,27 +147,26 @@ for step in range(time_steps):
             dx = pos2 - pos1
             distance = np.linalg.norm(dx)
             
-            if distance < 0.105: # Interaction radius
+            if distance < 0.100001: # Interaction radius
                 # Calculate orbital force
-                tangent = np.array([-dx[1], dx[0]]) / distance
+                tangent = np.array([dx[1], -dx[0]]) / distance
                 orbital_strength = 0.03
                 
                 # Apply tangential forces to create orbital motion
                 force = tangent * orbital_strength
-                body1.apply_force_at_local_point(tuple(-force), (0, 0))
+                #body1.apply_force_at_local_point(tuple(-force), (0, 0))
                 body2.apply_force_at_local_point(tuple(force), (0, 0))
                 
                 # Add attractive force to keep particles from drifting apart
-                if distance > 0.1:
-                    attract_strength = 0.1
-                    force_dir = dx / distance
-                    attract_force = force_dir * attract_strength
-                    body1.apply_force_at_local_point(tuple(attract_force), (0, 0))
-                    body2.apply_force_at_local_point(tuple(-attract_force), (0, 0))
-        
+                attract_strength = 0.3
+                force_dir = dx / distance
+                attract_force = force_dir * attract_strength
+                body1.apply_force_at_local_point(tuple(attract_force), (0, 0))
+                body2.apply_force_at_local_point(tuple(-attract_force), (0, 0))
+    
         # Add damping
         vel = np.array(body1.velocity)
-        body1.velocity = tuple(vel * 0.99)
+        #body1.velocity = tuple(vel * 0.90)
     
     space.step(dt)
     time += dt
