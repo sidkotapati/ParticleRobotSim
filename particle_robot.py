@@ -150,7 +150,7 @@ for step in range(time_steps):
             if distance < 0.100001: # Interaction radius
                 # Calculate orbital force
                 tangent = np.array([dx[1], -dx[0]]) / distance
-                orbital_strength = 1
+                orbital_strength = 5
                 
                 # Apply tangential forces to create orbital motion
                 force = tangent * orbital_strength
