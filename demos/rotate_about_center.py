@@ -26,8 +26,8 @@ space = pymunk.Space()
 space.gravity = (0, 0)
 
 # Create boundary
-boundary_body = pymunk.Body(body_type=pymunk.Body.STATIC)
-space.add(boundary_body)
+# boundary_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+# space.add(boundary_body)
 
 boundary_points = []
 num_segments = 32
@@ -38,16 +38,16 @@ for i in range(num_segments):
     boundary_points.append((x, y))
 
 # Create boundary segments
-for i in range(num_segments):
-    p1 = boundary_points[i]
-    p2 = boundary_points[(i + 1) % num_segments]
-    segment = pymunk.Segment(boundary_body, p1, p2, 0.01)
-    segment.friction = 1.0
-    segment.elasticity = 0.9
-    space.add(segment)
+# for i in range(num_segments):
+#     p1 = boundary_points[i]
+#     p2 = boundary_points[(i + 1) % num_segments]
+#     segment = pymunk.Segment(boundary_body, p1, p2, 0.01)
+#     segment.friction = 1.0
+#     segment.elasticity = 0.9
+#     space.add(segment)
 
 # Create particles
-num_particles = 14
+num_particles = 25
 particles = []
 inner_particles = []  # Track inner particles (center + first ring)
 outer_particles = []  # Track outer ring particles
@@ -190,7 +190,7 @@ for step in range(time_steps):
             
             if distance < 2.1 * radius:  # Slightly more than touching
                 # Calculate attract force to keep particles from drifting apart
-                attract_strength = 10.0
+                attract_strength = 6.0
                 force_dir = dx / max(distance, 0.0001)  # Avoid division by zero
                 attract_force = force_dir * attract_strength
                 
