@@ -3,9 +3,12 @@ import numpy as np
 import pygame
 import pymunk.pygame_util
 import math
+from rotate_to_goal_helpers import find_furthest_robot
 
 # Constants
 radius = 0.05
+
+# Display setup
 display_window = (800, 600)
 display_scale = 800
 pygame.init()
@@ -119,19 +122,6 @@ def draw_rotation_indicators():
 
 # Goal point for the robots to reach
 goal_point = (0.2, 0.2)
-
-# Function to find the robot furthest from the goal
-def find_furthest_robot(robots, goal_point):
-    max_dist = -1
-    furthest_robot = None
-    
-    for robot in robots:
-        dist = np.linalg.norm(np.array(robot.position) - np.array(goal_point))
-        if dist > max_dist:
-            max_dist = dist
-            furthest_robot = robot
-            
-    return furthest_robot
 
 # Function to find the outer perimeter robots
 def find_perimeter_robots(robots):

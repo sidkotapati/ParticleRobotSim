@@ -3,6 +3,8 @@ import numpy as np
 import pygame
 import pymunk.pygame_util
 
+from rotate_to_goal_helpers import find_furthest_robot, rotate_until_closest, check_goal_reached
+
 # Constants
 radius = 0.05
 
@@ -34,7 +36,7 @@ outer_particles = []  # Track outer ring particles
 center_pos = (0, 0)
 center_body = pymunk.Body()
 center_shape = pymunk.Circle(center_body, radius)
-center_shape.mass = 1000.0
+center_shape.mass = 1.0
 center_shape.friction = 0.9
 center_shape.elasticity = 0.0
 center_shape.color = (50, 50, 50, 255)  # Darker gray for center
@@ -53,7 +55,7 @@ for i in range(min(6, num_particles-1)):
     
     body = pymunk.Body()
     shape = pymunk.Circle(body, radius)
-    shape.mass = 100000
+    shape.mass = 1.0
     shape.friction = 0.9
     shape.elasticity = 0.0
     
@@ -119,7 +121,7 @@ if num_particles > 7:
         
         # Set initial rotation for outer ring
         direction = 1
-        body.angular_velocity = 2.0 * direction
+        body.angular_velocity = 0.0
             
         space.add(body, shape)
         particles.append(body)
@@ -140,52 +142,43 @@ def draw_rotation_indicators():
         end_y = screen_pos[1] - int(radius * display_scale * np.sin(angle))
         pygame.draw.line(screen, (255, 0, 0), screen_pos, (end_x, end_y), 2)
 
+# Function to draw the goal point
+def draw_goal_point(goal_point):
+    goal_screen_pos = (
+        int((goal_point[0] + display_offset[0]) * display_scale),
+        int((display_offset[1] - goal_point[1]) * display_scale)
+    )
+    pygame.draw.circle(screen, (0, 255, 0), goal_screen_pos, 10)
+    pygame.draw.circle(screen, (0, 0, 0), goal_screen_pos, 10, 2)
+
+
 # Simulation loop
 time = 0
 time_steps = 10000
 dt = 0.02
 
+goal_point = (np.random.uniform(-10.0, 10.0), np.random.uniform(-10.0, 10.0))
+print("Goal point = ", goal_point)
+draw_goal_point(goal_point=goal_point)
 for step in range(time_steps):
     # Keep inner particles static
     for body in inner_particles:
         body.angular_velocity = 0.0
         
     # Maintain rotation for outer particles
-    for i, body in enumerate(outer_particles):
-        # Alternate direction based on position
-        target_angular_vel = 15.0
-            
-        # Gradually adjust to target angular velocity
-        current_vel = body.angular_velocity
-        body.angular_velocity = current_vel * 0.95 + target_angular_vel * 0.05
+    particles = inner_particles + outer_particles
+    f_bot = find_furthest_robot(particles, goal_point)
     
-    # Handle particle interactions
-    for i, body1 in enumerate(particles):
-        for j, body2 in enumerate(particles[i+1:], i+1):
-            # Get displacement vector between particles
-            pos1 = np.array(body1.position)
-            pos2 = np.array(body2.position)
-            displacement = pos2 - pos1
-            distance = np.linalg.norm(displacement)
-            
-            if distance < 2.1 * radius:  # Slightly more than touching
-                # Calculate attract force to keep particles from drifting apart
-                attract_strength = 3.0
-                force_dir = displacement / max(distance, 0.0001)  # Avoid division by zero
-                attract_force = force_dir * attract_strength
-                
-                # Apply attraction force
-                body1.apply_force_at_local_point(tuple(attract_force), (0, 0))
-                body2.apply_force_at_local_point(tuple(-attract_force), (0, 0))
-    
-    # Add velocity damping to prevent particles from flying apart
-    for body in particles:
-        vel = np.array(body.velocity)
-        body.velocity = tuple(vel * 0.85)  # Damping factor
-    
-    # Force inner particles to maintain zero angular velocity
-    for body in inner_particles:
-        body.angular_velocity = 0.0
+    target_angular_vel = 15.0
+        
+    # # Gradually adjust to target angular velocity
+    if f_bot is not None:
+        current_vel = f_bot.angular_velocity
+        f_bot.angular_velocity = current_vel * 0.95 + target_angular_vel * 0.05
+
+    rotate_until_closest(f_bot, particles, goal_point, space)
+    # if (check_goal_reached(particles, goal_point)):
+    #     break
     
     space.step(dt)
     time += dt
