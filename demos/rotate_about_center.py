@@ -25,7 +25,7 @@ space = pymunk.Space()
 space.gravity = (0, 0)
 
 # Create particles
-num_particles = 16
+num_particles = 14
 particles = []
 inner_particles = []  # Track inner particles (center + first ring)
 outer_particles = []  # Track outer ring particles
